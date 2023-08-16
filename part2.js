@@ -1,33 +1,54 @@
-// Function to fetch weather data using the fetch() API
-async function fetchWeather(city) {
-    const apiKey = "ENTER_API_KEY"; // Replace with actual API key
-    const apiUrl = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`;
-
+/// Function to fetch data from an API
+async function fetchData() {
     try {
-        const response = await fetch(apiUrl);
+        const response = await fetch('https://jsonplaceholder.typicode.com/posts/1');
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
         const data = await response.json();
         return data;
     } catch (error) {
-        throw new Error("Unable to fetch weather data");
+        throw new Error('Failed to fetch data');
     }
 }
 
-// Event handler for the "Get Weather" button
-document.getElementById("getWeatherBtn").addEventListener("click", async () => {
-    const city = document.getElementById("cityInput").value;
-    const weatherInfo = document.getElementById("weatherInfo");
-
-    weatherInfo.textContent = "Fetching weather data...";
+// Event handler for the "Fetch Data" button
+document.getElementById('fetchDataBtn').addEventListener('click', async () => {
+    const outputElement = document.getElementById('output');
+    outputElement.textContent = 'Fetching data...';
 
     try {
-        const weatherData = await fetchWeather(city);
-        weatherInfo.innerHTML = `
-            <p>City: ${weatherData.name}</p>
-            <p>Temperature: ${weatherData.main.temp}°C</p>
-            <p>Description: ${weatherData.weather[0].description}</p>
+        const result = await fetchData();
+        outputElement.innerHTML = `
+            <p>ID: ${result.id}</p>
+            <p>Title: ${result.title}</p>
+            <p>Body: ${result.body}</p>
         `;
     } catch (error) {
-        weatherInfo.textContent = "Error fetching weather data";
+        outputElement.textContent = 'Error fetching data';
         console.error(error);
     }
 });
+
+// Using Promise.all() to combine multiple promises
+async function fetchMultipleData() {
+    const urls = ['https://jsonplaceholder.typicode.com/posts/2', 'https://jsonplaceholder.typicode.com/posts/3'];
+
+    const promises = urls.map(async url => {
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error(`Network response was not ok for URL: ${url}`);
+        }
+        return response.json();
+    });
+
+    try {
+        const results = await Promise.all(promises);
+        console.log('Multiple data fetched:', results);
+    } catch (error) {
+        console.error('Error fetching multiple data:', error);
+    }
+}
+
+// Call the function that fetches multiple data
+fetchMultipleData();
